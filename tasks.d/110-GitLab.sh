@@ -38,7 +38,7 @@ limit="${GITLAB_REPO_LIMIT:-100}"
 retries="${GITLAB_RETRIES:-3}"
 proto="${GITLAB_PROTOCOL:-ssh}"
 
-base="$tmp_backup_dir/gitlab"
+base="$TMP_BACKUP_DIR/gitlab"
 repos_dir="$base/repos"
 meta_dir="$base/meta"
 mkdir -p "$repos_dir" "$meta_dir" || true

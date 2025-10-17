@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-checklist_dir="$tmp_backup_dir/manual-checklist"
+checklist_dir="$TMP_BACKUP_DIR/manual-checklist"
 mkdir -p "$checklist_dir" || true
 todo="$checklist_dir/TODO.txt"
 
@@ -23,21 +23,21 @@ tasks=(
 )
 
 printf '%s\n' "Manual backup checklist ($(date))" > "$todo"
-printf '%s\n' "Destination base: $tmp_backup_dir" >> "$todo"
+printf '%s\n' "Destination base: $TMP_BACKUP_DIR" >> "$todo"
 printf '%s\n\n' "Mark these off after completing:" >> "$todo"
 
 if [ "${NON_INTERACTIVE:-0}" = "1" ]; then
   for t in "${tasks[@]}"; do
-    printf '[ ] %s -> %s/\n' "$t" "$tmp_backup_dir" >> "$todo"
+    printf '[ ] %s -> %s/\n' "$t" "$TMP_BACKUP_DIR" >> "$todo"
   done
   echo "NON_INTERACTIVE=1: wrote checklist to $todo"
   exit 0
 fi
 
 for t in "${tasks[@]}"; do
-  echo "$t -> $tmp_backup_dir/"
-  printf '[ ] %s -> %s/\n' "$t" "$tmp_backup_dir" >> "$todo"
-  wait_to_press_enter
+  echo "$t -> $TMP_BACKUP_DIR/"
+  printf '[ ] %s -> %s/\n' "$t" "$TMP_BACKUP_DIR" >> "$todo"
+  WAIT_TO_PRESS_ENTER
 done
 
 echo "Checklist saved to $todo"

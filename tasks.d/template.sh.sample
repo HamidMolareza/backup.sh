@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Template for a task script in tasks.d (ignored if *.sample)
 # The main runner exports:
-#   tmp_backup_dir      -> write your artifacts here
+#   TMP_BACKUP_DIR      -> write your artifacts here
 #   NON_INTERACTIVE     -> "1" for non-interactive mode
-#   wait_to_press_enter -> helper function
+#   WAIT_TO_PRESS_ENTER -> helper function
 
 set -uo pipefail
 
@@ -13,7 +13,7 @@ if ! command -v dconf >/dev/null 2>&1; then
   exit 0
 fi
 
-task_dir="$tmp_backup_dir/example-task"
+task_dir="$TMP_BACKUP_DIR/example-task"
 mkdir -p "$task_dir"
 
 # Do work

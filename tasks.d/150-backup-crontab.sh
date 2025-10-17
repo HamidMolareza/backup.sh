@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-out_dir="$tmp_backup_dir/crontab"
+out_dir="$TMP_BACKUP_DIR/crontab"
 mkdir -p "$out_dir" || true
 
 if command -v crontab >/dev/null 2>&1; then

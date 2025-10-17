@@ -51,7 +51,7 @@ limit="${GH_REPO_LIMIT:-1000}"
 proto="${GH_CLONE_PROTOCOL:-ssh}"
 retries="${GH_RETRIES:-3}"
 
-base="$tmp_backup_dir/github"
+base="$TMP_BACKUP_DIR/github"
 repos_dir="$base/repos"
 gists_dir="$base/gists"
 meta_dir="$base/meta"

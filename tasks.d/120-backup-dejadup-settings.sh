@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-task_dir="$tmp_backup_dir/deja-dup-settings"
+task_dir="$TMP_BACKUP_DIR/deja-dup-settings"
 mkdir -p "$task_dir" || true
 
 if command -v dconf >/dev/null 2>&1; then

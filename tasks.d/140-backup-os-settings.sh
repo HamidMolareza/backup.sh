@@ -4,7 +4,7 @@
 
 set -uo pipefail
 
-base="$tmp_backup_dir/os-configs"
+base="$TMP_BACKUP_DIR/os-configs"
 mkdir -p "$base" || true
 
 # 1) Desktop settings via dconf (fallback to gsettings)

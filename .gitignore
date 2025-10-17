@@ -21,3 +21,5 @@ Thumbs.db
 
 include.txt
 exclude.txt
+
+.backup.lock

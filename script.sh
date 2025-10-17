@@ -126,7 +126,7 @@ ask_yes_no() {
   [[ "$ans" =~ ^[Yy]([Ee][Ss])?$ ]]
 }
 
-wait_to_press_enter() {
+WAIT_TO_PRESS_ENTER() {
   [ "${NON_INTERACTIVE:-0}" = "1" ] && return 0
   read -r -p "Press ENTER to continue..." _
 }
@@ -265,10 +265,10 @@ run_task_scripts() {
   local tmp_dir="$1"
   local count=0 ok=0 failed=0
 
-  export tmp_backup_dir="$tmp_dir"
+  export TMP_BACKUP_DIR="$tmp_dir"
   export NON_INTERACTIVE="${NON_INTERACTIVE:-0}"
   export LOG_FILE               # let tasks append to the same log if they want
-  export -f wait_to_press_enter
+  export -f WAIT_TO_PRESS_ENTER
 
   # sorted list, ignore *.sample
   mapfile -t scripts < <(find "$TASKS_DIR" -maxdepth 1 -type f -name "*.sh" ! -name "*.sample" -printf "%f\n" 2>/dev/null | sort)
