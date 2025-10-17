@@ -1,0 +1,11 @@
+# --- Core system config (tiny, crucial)
+# Pulls in users, services, networking, ssh keys/config, etc.
+# Avoids /proc,/sys,/dev by default (we exclude them explicitly).
+/etc
+
+# --- Local software & manual installs
+/usr/local
+
+/snap
+/usr/share/applications
+/home

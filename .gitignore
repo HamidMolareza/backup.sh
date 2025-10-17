@@ -1,0 +1,23 @@
+# Local config
+config.env
+
+# Outputs and logs
+/output/
+/logs/
+*.tar
+*.tar.*
+*.log
+
+# Task leftovers
+tasks.d/*.local.sh
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+*.swp
+
+.idea
+.vscode
+
+include.txt
+exclude.txt

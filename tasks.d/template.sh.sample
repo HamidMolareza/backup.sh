@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Template for a task script in tasks.d (ignored if *.sample)
+# The main runner exports:
+#   tmp_backup_dir      -> write your artifacts here
+#   NON_INTERACTIVE     -> "1" for non-interactive mode
+#   wait_to_press_enter -> helper function
+
+set -uo pipefail
+
+# Example: check dependency (log-only if missing)
+if ! command -v dconf >/dev/null 2>&1; then
+  echo "dconf not found, skipping template task." >&2
+  exit 0
+fi
+
+task_dir="$tmp_backup_dir/example-task"
+mkdir -p "$task_dir"
+
+# Do work
+echo "Hello from template" > "$task_dir/readme.txt"
+
+# If you create helper restore scripts, make them executable:
+cat <<'RESTORE' > "$task_dir/restore.sh"
+#!/usr/bin/env bash
+echo "Example restore step"
+RESTORE
+chmod +x "$task_dir/restore.sh"
+
+# Exit 0 even if partial failures—let the main script log/continue
+exit 0
