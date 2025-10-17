@@ -1,30 +1,53 @@
 #!/usr/bin/env bash
-# Template for a task script in tasks.d (ignored if *.sample)
-# The main runner exports:
-#   TMP_BACKUP_DIR      -> write your artifacts here
+# Minimal task template (ignored if *.sample)
+# Runner exports:
+#   TMP_BACKUP_DIR      -> where to write artifacts
 #   NON_INTERACTIVE     -> "1" for non-interactive mode
-#   WAIT_TO_PRESS_ENTER -> helper function
+#   WAIT_TO_PRESS_ENTER -> optional helper function
 
 set -uo pipefail
 
-# Example: check dependency (log-only if missing)
-if ! command -v dconf >/dev/null 2>&1; then
-  echo "dconf not found, skipping template task." >&2
-  exit 0
-fi
+# ---- helper: simple pause if interactive ----
+pause() {
+  if declare -F WAIT_TO_PRESS_ENTER >/dev/null; then
+    WAIT_TO_PRESS_ENTER
+  else
+    read -r -p "Press ENTER to continue..." _
+  fi
+}
 
-task_dir="$TMP_BACKUP_DIR/example-task"
+# ---- basics ----
+task_name="$(basename "${BASH_SOURCE[0]}" .sh)"
+dest_base="${TMP_BACKUP_DIR:-./output/.tasks}"
+task_dir="${dest_base}/${task_name}"
 mkdir -p "$task_dir"
 
-# Do work
-echo "Hello from template" > "$task_dir/readme.txt"
+# tiny logger to stderr (shows in console and in main log)
+log(){ printf "[TASK %s] %s\n" "$task_name" "$*" >&2; }
 
-# If you create helper restore scripts, make them executable:
-cat <<'RESTORE' > "$task_dir/restore.sh"
+log "Writing artifacts to: $task_dir"
+
+# ---- do a tiny bit of work ----
+cat > "${task_dir}/README.txt" <<EOF
+Task: ${task_name}
+Date: $(date -Iseconds)
+Host: $(hostname 2>/dev/null || echo unknown)
+Note: This is a template artifact.
+EOF
+
+# optional restore helper
+cat > "${task_dir}/restore.sh" <<'SH'
 #!/usr/bin/env bash
-echo "Example restore step"
-RESTORE
-chmod +x "$task_dir/restore.sh"
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "[restore] Contents of $here:"
+ls -lah "$here" || true
+echo "[restore] Nothing to restore for this template."
+SH
+chmod +x "${task_dir}/restore.sh"
 
-# Exit 0 even if partial failures—let the main script log/continue
+# one simple call:
+pause
+
+log "Done."
 exit 0

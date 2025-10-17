@@ -3,6 +3,15 @@
 
 set -uo pipefail
 
+# ---- helper: simple pause if interactive ----
+pause() {
+  if declare -F WAIT_TO_PRESS_ENTER >/dev/null; then
+    WAIT_TO_PRESS_ENTER
+  else
+    read -r -p "Press ENTER to continue..." _
+  fi
+}
+
 checklist_dir="$TMP_BACKUP_DIR/manual-checklist"
 mkdir -p "$checklist_dir" || true
 todo="$checklist_dir/TODO.txt"
@@ -37,7 +46,7 @@ fi
 for t in "${tasks[@]}"; do
   echo "$t -> $TMP_BACKUP_DIR/"
   printf '[ ] %s -> %s/\n' "$t" "$TMP_BACKUP_DIR" >> "$todo"
-  WAIT_TO_PRESS_ENTER
+  pause
 done
 
 echo "Checklist saved to $todo"
