@@ -135,24 +135,17 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || { warn "Missing command: $1"; return 1; }
 }
 
-# Expand env vars in a line while keeping globs; prefer envsubst if present.
+# Expand env vars in a line but keep globs as patterns (no word splitting)
 _expand_vars_only() {
   local line="$1"
+  # strip trailing CR if the file is CRLF
+  line="${line%$'\r'}"
   if command -v envsubst >/dev/null 2>&1; then
     printf '%s' "$line" | envsubst
   else
-    # Guarded eval: disable globbing and command substitution via pattern check
-    case "$line" in
-      *'$('*|*'`'*)
-        warn "Skipping command substitution in include/exclude line: $line"
-        printf '%s' "$line"
-        ;;
-      *)
-        set -f
-        # shellcheck disable=SC2016
-        eval printf '%s' "\"$line\""
-        set +f
-        ;;
+    case "$line" in *'$('*|*'`'*)
+      printf '%s' "$line" ;;  # refuse command substitution
+    *) set -f; eval printf '%s' "\"$line\""; set +f ;;
     esac
   fi
 }
@@ -163,24 +156,31 @@ build_tar_excludes() {
   out_arr=()
   if [ -f "$file" ]; then
     while IFS= read -r raw || [ -n "$raw" ]; do
+      raw="${raw%$'\r'}"                                # strip CR
       [[ -z "$raw" || "$raw" =~ ^[[:space:]]*# ]] && continue
-      local expanded
+      local expanded norm
       expanded=$(_expand_vars_only "$raw")
+      norm="${expanded#/}"                              # relative form for -C /
       out_arr+=("--exclude=$expanded")
+      [ "$norm" != "$expanded" ] && out_arr+=("--exclude=$norm")
+      debug "exclude: $expanded${norm:+ (alt: $norm)}"
     done < "$file"
   fi
 }
 
 make_null_list_from_file() {
-  # Creates a NUL-separated list file with env-var expansion for includes.
   local in="$1" out="$2"
   : > "$out"
   if [ -f "$in" ]; then
     while IFS= read -r raw || [ -n "$raw" ]; do
+      raw="${raw%$'\r'}"                                # strip CR
       [[ -z "$raw" || "$raw" =~ ^[[:space:]]*# ]] && continue
-      local expanded
+      local expanded norm
       expanded=$(_expand_vars_only "$raw")
-      printf '%s\0' "$expanded" >> "$out"
+      expanded="${expanded%$'\r'}"                      # double-guard CR
+      norm="${expanded#/}"                              # relative to /
+      printf '%s\0' "$norm" >> "$out"
+      debug "include: $expanded -> $norm"
     done < "$in"
   fi
 }
@@ -386,6 +386,8 @@ do_backup() {
   [ "$EXCLUDE_CACHES" = "1" ] && tar_create_opts+=( --exclude-caches-all --exclude-backups )
   [ "$SPARSE" = "1" ] && tar_create_opts+=( --sparse )
 
+  info "Tar include list:"
+  tr '\0' '\n' < "$include_list" | sed 's/^/  - /' | tee -a "$LOG_FILE" >&2
   run_safe "tar create (system paths)" \
     tar "${tar_create_opts[@]}" \
         "${excludes[@]}" \
